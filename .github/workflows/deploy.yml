@@ -13,6 +13,11 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
+      - name: Limpiar repos problematicos
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/azure-cli.list
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+
       - name: Instalar Ansible
         run: |
           sudo apt update
