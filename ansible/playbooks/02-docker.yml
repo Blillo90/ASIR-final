@@ -4,13 +4,20 @@
   become: true
 
   tasks:
-    - name: Instalar Docker y plugin compose
+    - name: Comprobar si Docker ya esta instalado
+      command: docker --version
+      register: docker_check
+      ignore_errors: true
+      changed_when: false
+
+    - name: Instalar Docker y plugin compose si no existe
       apt:
         name:
           - docker.io
           - docker-compose-plugin
         state: present
         update_cache: true
+      when: docker_check.rc != 0
 
     - name: Asegurar servicio Docker arrancado
       service:
