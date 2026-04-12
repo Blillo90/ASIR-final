@@ -3,30 +3,51 @@ import pymysql
 from pymysql.cursors import DictCursor
 from datetime import datetime
 import os
+import time
 
 app = Flask(__name__)
 
-# Variables por entorno (Kubernetes Secret -> envFrom)
+# Variables por entorno
 DB_HOST = os.environ.get("DB_HOST", "app-db")
 DB_PORT = int(os.environ.get("DB_PORT", "3306"))
 DB_NAME = os.environ.get("DB_NAME", "incidencias")
 DB_USER = os.environ.get("DB_USER", "inc_user")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "CambiarEstaPass123!")
 
+
 def get_db_connection():
-    return pymysql.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        cursorclass=DictCursor,   # para que el HTML pueda usar inc.id, inc.titulo, etc.
-        autocommit=True,
-        charset="utf8mb4",
-    )
+    """
+    Intenta conectar varias veces para dar tiempo a que MariaDB arranque.
+    Esto es importante en Docker Compose porque depends_on no garantiza
+    que la base de datos esté lista para aceptar conexiones.
+    """
+    last_error = None
+
+    for intento in range(10):
+        try:
+            return pymysql.connect(
+                host=DB_HOST,
+                port=DB_PORT,
+                user=DB_USER,
+                password=DB_PASSWORD,
+                database=DB_NAME,
+                cursorclass=DictCursor,
+                autocommit=True,
+                charset="utf8mb4",
+            )
+        except pymysql.err.OperationalError as e:
+            last_error = e
+            print(f"[DB] Intento {intento + 1}/10 fallido. Esperando 3 segundos...")
+            time.sleep(3)
+
+    raise Exception(f"No se pudo conectar a la base de datos tras varios intentos: {last_error}")
+
 
 def init_db():
-    # Misma estructura lógica que en SQLite, adaptada a MariaDB
+    """
+    Crea la tabla si no existe.
+    Mantiene la misma lógica funcional que tenías antes.
+    """
     sql = """
     CREATE TABLE IF NOT EXISTS incidencias (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,12 +58,14 @@ def init_db():
         creado_en DATETIME NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     """
+
     conn = get_db_connection()
     try:
         with conn.cursor() as c:
             c.execute(sql)
     finally:
         conn.close()
+
 
 @app.route("/")
 def index():
@@ -54,8 +77,8 @@ def index():
     finally:
         conn.close()
 
-    # Renderiza templates/index.html (el tuyo)
     return render_template("index.html", incidencias=incidencias)
+
 
 @app.route("/incidencias", methods=["GET"])
 def listar_incidencias_json():
@@ -66,7 +89,9 @@ def listar_incidencias_json():
             incidencias = c.fetchall()
     finally:
         conn.close()
+
     return jsonify(incidencias)
+
 
 @app.route("/incidencias", methods=["POST"])
 def crear_incidencia():
@@ -90,9 +115,11 @@ def crear_incidencia():
 
     return redirect(url_for("index"))
 
+
 @app.route("/incidencias/<int:incidencia_id>/estado", methods=["POST"])
 def cambiar_estado(incidencia_id):
     nuevo_estado = request.form.get("estado")
+
     if nuevo_estado not in ("abierta", "en_progreso", "resuelta"):
         return "Estado no válido", 400
 
@@ -108,6 +135,7 @@ def cambiar_estado(incidencia_id):
 
     return redirect(url_for("index"))
 
+
 @app.route("/incidencias/<int:incidencia_id>/delete", methods=["POST"])
 def borrar_incidencia(incidencia_id):
     conn = get_db_connection()
@@ -119,11 +147,12 @@ def borrar_incidencia(incidencia_id):
 
     return redirect(url_for("index"))
 
+
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"})
 
+
 if __name__ == "__main__":
-    # Crea tabla si no existe (idempotente)
     init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)
