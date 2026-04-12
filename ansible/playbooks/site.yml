@@ -1,0 +1,4 @@
+---
+- import_playbook: 01-common.yml
+- import_playbook: 02-docker.yml
+- import_playbook: 03-deploy.yml

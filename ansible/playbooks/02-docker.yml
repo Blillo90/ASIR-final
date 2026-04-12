@@ -1,0 +1,25 @@
+---
+- name: Instalar Docker
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Instalar dependencias Docker
+      apt:
+        name:
+          - docker.io
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Asegurar servicio Docker arrancado
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Añadir ubuntu al grupo docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: true

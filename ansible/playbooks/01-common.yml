@@ -1,0 +1,69 @@
+---
+- name: Preparacion base del servidor
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Actualizar cache apt
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Instalar paquetes base
+      apt:
+        name:
+          - curl
+          - git
+          - ufw
+          - fail2ban
+          - ca-certificates
+          - apt-transport-https
+          - software-properties-common
+          - python3-pip
+        state: present
+
+    - name: Crear directorio del proyecto
+      file:
+        path: /opt/asir-final
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Politica por defecto UFW incoming deny
+      ufw:
+        direction: incoming
+        policy: deny
+
+    - name: Politica por defecto UFW outgoing allow
+      ufw:
+        direction: outgoing
+        policy: allow
+
+    - name: Permitir SSH
+      ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+
+    - name: Permitir HTTP
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+
+    - name: Permitir HTTPS
+      ufw:
+        rule: allow
+        port: "443"
+        proto: tcp
+
+    - name: Activar UFW
+      ufw:
+        state: enabled
+
+    - name: Habilitar fail2ban
+      service:
+        name: fail2ban
+        state: started
+        enabled: true

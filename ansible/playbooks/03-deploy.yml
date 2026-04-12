@@ -1,0 +1,38 @@
+---
+- name: Desplegar aplicacion con Docker Compose
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Copiar docker-compose.yml al servidor
+      copy:
+        src: ../../docker/docker-compose.yml
+        dest: /opt/asir-final/docker-compose.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
+
+    - name: Copiar archivo .env si existe
+      copy:
+        src: ../../docker/.env
+        dest: /opt/asir-final/.env
+        owner: ubuntu
+        group: ubuntu
+        mode: "0600"
+      ignore_errors: true
+
+    - name: Lanzar contenedores
+      shell: docker compose up -d --build
+      args:
+        chdir: /opt/asir-final
+
+    - name: Mostrar estado de contenedores
+      shell: docker compose ps
+      args:
+        chdir: /opt/asir-final
+      register: compose_ps
+      changed_when: false
+
+    - name: Ver estado
+      debug:
+        var: compose_ps.stdout_lines

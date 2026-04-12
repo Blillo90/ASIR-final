@@ -1,0 +1,9 @@
+app_name: asir-final
+app_dir: /opt/asir-final
+project_root: "{{ app_dir }}"
+docker_compose_file: "{{ app_dir }}/docker-compose.yml"
+
+app_port: 80
+container_port: 5000
+
+ghcr_image: ghcr.io/blillo90/asir-final:latest

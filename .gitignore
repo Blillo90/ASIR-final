@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Bases de datos locales
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Secretos Ansible
+ansible/group_vars/all/vars.yml
+
+# AWS - claves privadas
+aws/*.pem
+aws/*.key
+
+# Office - archivos temporales
+documentation/~$*
+~$*
+
+# Node.js
+node_modules/
+app-nodejs/node_modules/
+
+# Sistema
+.DS_Store
+Thumbs.db
