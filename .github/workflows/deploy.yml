@@ -1,4 +1,4 @@
-name: Deploy to EC2 with Ansible
+name: Despliegue a EC2 con Ansible
 
 on:
   push:
