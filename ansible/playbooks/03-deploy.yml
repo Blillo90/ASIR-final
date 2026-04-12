@@ -38,8 +38,8 @@
 
     - name: Copiar dockerfile
       copy:
-        src: "{{ playbook_dir }}/../../docker/dockerfile"
-        dest: /opt/asir-final/docker/dockerfile
+        src: "{{ playbook_dir }}/../../docker/Dockerfile"
+        dest: /opt/asir-final/docker/Dockerfile
         owner: ubuntu
         group: ubuntu
         mode: "0644"
