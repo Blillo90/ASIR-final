@@ -4,7 +4,47 @@
   become: true
 
   tasks:
-    - name: Copiar docker-compose.yml al servidor
+    - name: Crear directorio principal del proyecto
+      file:
+        path: /opt/asir-final
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Crear directorio app
+      file:
+        path: /opt/asir-final/app
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Crear directorio docker
+      file:
+        path: /opt/asir-final/docker
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Copiar codigo de la aplicacion
+      copy:
+        src: ../../app/
+        dest: /opt/asir-final/app/
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Copiar Dockerfile
+      copy:
+        src: ../../docker/Dockerfile
+        dest: /opt/asir-final/docker/Dockerfile
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
+
+    - name: Copiar docker-compose.yml
       copy:
         src: ../../docker/docker-compose.yml
         dest: /opt/asir-final/docker-compose.yml
@@ -12,27 +52,23 @@
         group: ubuntu
         mode: "0644"
 
-    - name: Copiar archivo .env si existe
-      copy:
-        src: ../../docker/.env
-        dest: /opt/asir-final/.env
-        owner: ubuntu
-        group: ubuntu
-        mode: "0600"
-      ignore_errors: true
-
-    - name: Lanzar contenedores
+    - name: Levantar aplicacion
       shell: docker compose up -d --build
       args:
         chdir: /opt/asir-final
+      register: deploy_result
 
-    - name: Mostrar estado de contenedores
+    - name: Mostrar salida del despliegue
+      debug:
+        var: deploy_result.stdout_lines
+
+    - name: Ver contenedores
       shell: docker compose ps
       args:
         chdir: /opt/asir-final
       register: compose_ps
       changed_when: false
 
-    - name: Ver estado
+    - name: Mostrar estado de contenedores
       debug:
         var: compose_ps.stdout_lines

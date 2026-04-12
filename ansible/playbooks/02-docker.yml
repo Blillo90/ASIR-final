@@ -4,7 +4,7 @@
   become: true
 
   tasks:
-    - name: Instalar dependencias Docker
+    - name: Instalar Docker y plugin compose
       apt:
         name:
           - docker.io

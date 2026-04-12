@@ -1,4 +1,4 @@
-name: Despliegue a EC2 con Ansible
+name: Deploy to EC2 with Ansible
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
       - name: Configurar clave SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
@@ -33,6 +33,6 @@ jobs:
         run: |
           cat ansible/inventory/hosts.ini
 
-      - name: Probar conectividad Ansible
+      - name: Ejecutar playbook completo
         run: |
-          ANSIBLE_HOST_KEY_CHECKING=False ansible all -i ansible/inventory/hosts.ini -m ping --private-key ~/.ssh/id_ed25519
+          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook ansible/playbooks/site.yml --private-key ~/.ssh/id_ed25519
