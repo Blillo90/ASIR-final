@@ -3,7 +3,7 @@ name: Deploy to EC2 with Ansible
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -16,19 +16,23 @@ jobs:
       - name: Instalar Ansible
         run: |
           sudo apt update
-          sudo apt install -y ansible sshpass
+          sudo apt install -y ansible
 
       - name: Configurar clave SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Sustituir IP en inventario
         run: |
           sed -i "s/TU_IP_PUBLICA_EC2/${{ secrets.EC2_HOST }}/g" ansible/inventory/hosts.ini
 
-      - name: Ejecutar playbook
+      - name: Mostrar inventario resultante
         run: |
-          ansible-playbook ansible/playbooks/site.yml
+          cat ansible/inventory/hosts.ini
+
+      - name: Probar conectividad Ansible
+        run: |
+          ANSIBLE_HOST_KEY_CHECKING=False ansible all -i ansible/inventory/hosts.ini -m ping --private-key ~/.ssh/id_ed25519
