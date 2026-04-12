@@ -30,7 +30,7 @@
 
     - name: Copiar codigo de la aplicacion
       copy:
-        src: ../../app/
+        src: "{{ playbook_dir }}/../../app/"
         dest: /opt/asir-final/app/
         owner: ubuntu
         group: ubuntu
@@ -38,7 +38,7 @@
 
     - name: Copiar Dockerfile
       copy:
-        src: ../../docker/Dockerfile
+        src: "{{ playbook_dir }}/../../docker/Dockerfile"
         dest: /opt/asir-final/docker/Dockerfile
         owner: ubuntu
         group: ubuntu
@@ -46,7 +46,7 @@
 
     - name: Copiar docker-compose.yml
       copy:
-        src: ../../docker/docker-compose.yml
+        src: "{{ playbook_dir }}/../../docker/docker-compose.yml"
         dest: /opt/asir-final/docker-compose.yml
         owner: ubuntu
         group: ubuntu
