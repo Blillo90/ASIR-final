@@ -39,10 +39,6 @@ jobs:
       - name: Mostrar inventario resultante
         run: |
           cat ansible/inventory/hosts.ini
-
-      - name: Probar conectividad Ansible
-        run: |
-          ANSIBLE_HOST_KEY_CHECKING=False ansible all -i ansible/inventory/hosts.ini -m ping --private-key ~/.ssh/id_ed25519
           
       - name: Debug clave SSH
         run: |
@@ -54,6 +50,10 @@ jobs:
           ls -la ~/.ssh/id_ed25519
           echo "=== Test SSH directo ==="
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o BatchMode=yes ubuntu@${{ secrets.EC2_HOST }} "echo OK" 2>&1
+
+      - name: Probar conectividad Ansible
+        run: |
+          ANSIBLE_HOST_KEY_CHECKING=False ansible all -i ansible/inventory/hosts.ini -m ping --private-key ~/.ssh/id_ed25519
 
       - name: Ejecutar playbook completo
         run: |
