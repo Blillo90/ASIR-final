@@ -53,7 +53,7 @@
         mode: "0644"
 
     - name: Levantar aplicacion
-      shell: docker compose up -d --build
+      shell: docker-compose up -d --build
       args:
         chdir: /opt/asir-final
       register: deploy_result
