@@ -52,11 +52,18 @@
         group: ubuntu
         mode: "0644"
 
+        - name: Parar contenedores existentes
+      shell: docker-compose down
+      args:
+        chdir: /opt/asir-final
+      ignore_errors: yes
+
     - name: Levantar aplicacion
       shell: docker-compose up -d --build
       args:
         chdir: /opt/asir-final
       register: deploy_result
+
 
     - name: Mostrar salida del despliegue
       debug:
