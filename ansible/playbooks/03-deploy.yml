@@ -52,7 +52,7 @@
         group: ubuntu
         mode: "0644"
 
-        - name: Parar contenedores existentes
+    - name: Parar contenedores existentes
       shell: docker-compose down
       args:
         chdir: /opt/asir-final
