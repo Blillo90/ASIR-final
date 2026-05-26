@@ -39,17 +39,6 @@ jobs:
       - name: Mostrar inventario resultante
         run: |
           cat ansible/inventory/hosts.ini
-          
-      - name: Debug clave SSH
-        run: |
-          echo "=== Primeros 40 chars de la clave ==="
-          head -1 ~/.ssh/id_ed25519
-          echo "=== Últimos 40 chars ==="
-          tail -1 ~/.ssh/id_ed25519
-          echo "=== Permisos ==="
-          ls -la ~/.ssh/id_ed25519
-          echo "=== Test SSH directo ==="
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o BatchMode=yes ubuntu@${{ secrets.EC2_HOST }} "echo OK" 2>&1
 
       - name: Probar conectividad Ansible
         run: |
